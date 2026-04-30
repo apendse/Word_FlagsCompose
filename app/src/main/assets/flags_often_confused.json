@@ -1,0 +1,21 @@
+{
+    "items":
+    [
+        ["BM", "QA"],
+        ["RS", "HR"],
+        ["ID", "PL", "MC"],
+        ["BE", "DE", "ML"],
+        ["LB", "NF"],
+        ["EG", "SY", "KW", "PS", "SS", "AE", "IQ", "JO"],
+        ["NZ", "AU"],
+        ["TJ", "IR"],
+        ["SI", "SK"],
+        ["CU", "CR", "PA", "PE", "CL", "AT"],
+        ["KZ", "KG", "TM"],
+        ["IT", "HU", "NE", "IN" ],
+        ["AG", "UY", "SV"],
+        ["FI", "GR", "DK", "SE", "CH"],
+        ["US", "LR", "MY"]
+    ]
+
+}

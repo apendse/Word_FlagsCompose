@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Flags</string>
+    <string name="start_new_game_home">Start a new game</string>
+    <string name="image_desc">Flag to guess</string>
+    <string name="app_title">Flags of the World</string>
+    <string name="show_help">Help</string>
+    <string name="past_scores_home">Past Scores</string>
+    <string name="your_score_title">Your Score</string>
+    <string name="show_details">More details</string>
+    <string name="start_new_game">New game</string>
+    <string name="score_text_separator">:</string>
+    <string name="total_prefix">Total</string>
+    <string name="total_template">%1$d</string>
+    <string name="correct_prefix">Correct</string>
+    <string name="score_template">%1$d</string>
+    <string name="wrong_prefix">Wrong</string>
+    <string name="show_home">Home</string>
+    <string name="correct_answer">Correct answer</string>
+    <string name="correct_tick">\u2713</string>
+    <string name="wrong_tick">\u274c</string>
+    <string name="your_answer">You answered:  </string>
+    <string name="detailed_score_title">Detailed score</string>
+    <string name="past_scores">Your past scores</string>
+    <string name="empty_past_scores">No past scores to show. Play a few games first.</string>
+    <string name="back">Back</string>
+    <string name="total">Total</string>
+    <string name="correct">Correct</string>
+    <string name="wrong">Wrong</string>
+    <string name="date">Time</string>
+    <string name="your_score">Your score</string>
+
+</resources>
