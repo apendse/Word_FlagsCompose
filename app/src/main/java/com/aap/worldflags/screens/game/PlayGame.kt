@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,16 +44,16 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.aap.widget.wavyimage.WavyImage
-import com.aap.worldflags.ui.theme.WorldFlagsTheme
-import com.aap.worldflags.ui.theme.questionFlagBackground
 import com.aap.worldflags.data.Game
 import com.aap.worldflags.data.QuestionOptions
+import com.aap.worldflags.ui.theme.WorldFlagsTheme
+import com.aap.worldflags.ui.theme.questionFlagBackground
 import com.aap.worldflags.widgets.RadioWithDrawnCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-private const val PAGE_TRANSITION_DURATION = 1500
+private const val PAGE_TRANSITION_DURATION = 400
 
 @Composable
 fun PlayGame(
@@ -217,7 +218,7 @@ fun ShowSingleQuestion(questionOptions: QuestionOptions, viewModel: PlayGameView
                     onSelectionComplete = {
                         viewModel.onAnswerClickCompleted(offset)
                     },
-                    offset
+                    isAnswerCorrect = if (questionOptions.answers[offset].isSelected) questionOptions.answers[offset].isCorrect else null
                 )
             }
             offsetVar += 1
@@ -238,6 +239,7 @@ fun ShowSingleQuestion(questionOptions: QuestionOptions, viewModel: PlayGameView
                     onSelectionComplete = {
                         viewModel.onAnswerClickCompleted(offset)
                     },
+                    isAnswerCorrect = if (questionOptions.answers[offset].isSelected) questionOptions.answers[offset].isCorrect else null
                 )
             }
             offsetVar += 1
@@ -258,6 +260,7 @@ fun ShowSingleQuestion(questionOptions: QuestionOptions, viewModel: PlayGameView
                     onSelectionComplete = {
                         viewModel.onAnswerClickCompleted(offset)
                     },
+                    isAnswerCorrect = if (questionOptions.answers[offset].isSelected) questionOptions.answers[offset].isCorrect else null
                 )
             }
             offsetVar += 1
@@ -278,6 +281,7 @@ fun ShowSingleQuestion(questionOptions: QuestionOptions, viewModel: PlayGameView
                     onSelectionComplete = {
                         viewModel.onAnswerClickCompleted(offset)
                     },
+                    isAnswerCorrect = if (questionOptions.answers[offset].isSelected) questionOptions.answers[offset].isCorrect else null
                 )
             }
         }
@@ -292,25 +296,33 @@ fun RadioButtonWithText(
     selected: Boolean,
     onClick: () -> Unit,
     onSelectionComplete: () -> Unit,
-    offset: Int = -1
+    isAnswerCorrect: Boolean? = null
 ) {
+    val color = when (isAnswerCorrect) {
+        true -> Color(0xFF2E7D32) // Success Green
+        false -> MaterialTheme.colorScheme.error
+        null -> MaterialTheme.colorScheme.primary
+    }
 
     var selectedState by remember { mutableStateOf(selected) }
     val onClickHandler = {
         selectedState = !selectedState
         onClick()
+        onSelectionComplete()
     }
     Row(modifier.padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         RadioWithDrawnCallback(
             selected = selectedState,
             onClick = onClickHandler,
-            onSelectionCompleted = onSelectionComplete
+            color = color,
+            onSelectionCompleted = {}
         )
         Text(
             modifier = Modifier.clickable(onClick = onClickHandler),
             text = text,
             fontSize = 16.sp,
-            maxLines = 3
+            maxLines = 3,
+            color = color
         )
     }
 }
@@ -326,8 +338,7 @@ private fun CardPreview() {
             "Trinidad and Tobago",
             false,
             {},
-            {},
-            -1
+            {}
         )
     }
 }

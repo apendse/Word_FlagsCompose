@@ -30,11 +30,13 @@ import com.aap.worldflags.navigation.NavDestinations.HOME
 import com.aap.worldflags.navigation.NavDestinations.PAST_SCORES
 import com.aap.worldflags.navigation.NavDestinations.PLAY_GUESS_COUNTRY_FROM_FLAG_GAME
 import com.aap.worldflags.navigation.NavDestinations.SCORE_SUMMARY
+import com.aap.worldflags.navigation.NavDestinations.WINNING_STREAKS
 import com.aap.worldflags.screens.game.PlayGame
 import com.aap.worldflags.screens.home.HomeScreen
 import com.aap.worldflags.screens.pastscores.PastScoresScreen
 import com.aap.worldflags.screens.score.ShowDetailedScore
 import com.aap.worldflags.screens.score.ShowScore
+import com.aap.worldflags.screens.winningstreaks.ShowWinningStreaks
 import com.aap.worldflags.ui.theme.WorldFlagsTheme
 
 /**
@@ -102,12 +104,15 @@ fun NavContent(navController: NavHostController, onTitleChange: (str: String, sh
         val onShowPastScoreLambda = {
             navController.navigate(PAST_SCORES)
         }
-
+        val onShowWinningStreaks = {
+            navController.navigate(WINNING_STREAKS)
+        }
         composable(HOME) {
             onTitleChange("", false)
             HomeScreen(
                 onStartNewGame = onStartNewGameLambda,
-                onShowPastScore = onShowPastScoreLambda)
+                onShowPastScore = onShowPastScoreLambda,
+                onShowWinningStreaks = onShowWinningStreaks)
         }
 
         composable(PLAY_GUESS_COUNTRY_FROM_FLAG_GAME) {
@@ -118,6 +123,27 @@ fun NavContent(navController: NavHostController, onTitleChange: (str: String, sh
             )
         }
 
+        composable(WINNING_STREAKS) {
+            onTitleChange(stringResource(R.string.winning_streaks), true)
+            ShowWinningStreaks(
+                onBack = {
+                    navController.navigate(HOME) {
+                        popUpTo(HOME) {
+                            this.inclusive = true
+                        }
+                    }
+                },
+                onStartNewGame = {
+                    navController.navigate(PLAY_GUESS_COUNTRY_FROM_FLAG_GAME) {
+                        popUpTo(HOME) {
+                            inclusive = true
+                        }
+                    }
+                },
+
+                onTitleChange = onTitleChange,
+            )
+        }
         composable(DETAILED_SCORE) {
             ShowDetailedScore(
                 goBack = {
@@ -174,9 +200,11 @@ fun NavContent(navController: NavHostController, onTitleChange: (str: String, sh
 
 }
 
+/*
 private fun dumpStack() {
     val stack = Thread.currentThread().stackTrace
 //    stack.forEach {
 //        Log.d("YYYY", "${it.className} : ${it.methodName} (${it.lineNumber})");
 //    }
 }
+*/

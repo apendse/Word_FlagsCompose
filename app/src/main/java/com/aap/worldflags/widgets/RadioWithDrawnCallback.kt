@@ -11,11 +11,11 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AssistChipDefaults.IconSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.minimumInteractiveComponentSize
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
@@ -30,7 +30,13 @@ private val RadioAnimationDuration = 100
  * Radio button that notifies that its animation to render the selection is complete
  */
 @Composable
-fun RadioWithDrawnCallback(selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier, onSelectionCompleted: () -> Unit) {
+fun RadioWithDrawnCallback(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    onSelectionCompleted: () -> Unit
+) {
     val dotRadius =
         animateDpAsState(
             targetValue = if (selected) 12.dp / 2 else 0.dp,
@@ -48,7 +54,7 @@ fun RadioWithDrawnCallback(selected: Boolean, onClick: () -> Unit, modifier: Mod
             indication = null
                 //ripple(true, 20.dp,)
         )
-    val drawColor = MaterialTheme.colorScheme.primary
+    val drawColor = color
     Canvas(modifier = modifier
         .then(
             Modifier.minimumInteractiveComponentSize()

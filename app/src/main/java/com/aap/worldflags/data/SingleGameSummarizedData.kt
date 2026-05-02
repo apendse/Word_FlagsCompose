@@ -6,4 +6,4 @@ package com.aap.worldflags.data
  * @property wrong number of wrong answers
  * @property time timestamp when the game was completed
  */
-data class SingleGameSummarizedData(val totalQuestions: Int, val correct: Int, val wrong: Int, val time: Long)
+data class SingleGameSummarizedData(val totalQuestions: Int, val correct: Int, val wrong: Int, val winner: Boolean, val time: Long)

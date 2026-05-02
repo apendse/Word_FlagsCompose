@@ -1,9 +1,9 @@
 package com.aap.worldflags.repo
 
-import com.aap.worldflags.data.SingleGameSummarizedData
-import com.aap.worldflags.room.table.QuestionRow
 import com.aap.worldflags.data.AnswerRecord
 import com.aap.worldflags.data.Game
+import com.aap.worldflags.data.SingleGameSummarizedData
+import com.aap.worldflags.room.table.QuestionRow
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -18,4 +18,7 @@ interface GamePlayRepository {
     fun getPastScores(): Flow<List<SingleGameSummarizedData>>
     suspend fun markGameComplete()
     suspend fun getPastQuestions(): List<QuestionRow>
+    fun isWinner(correct: Int, wrong: Int): Boolean
+
+
 }

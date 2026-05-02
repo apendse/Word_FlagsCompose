@@ -5,10 +5,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
-import com.aap.worldflags.data.SingleGameSummarizedData
-import com.aap.worldflags.room.GameDatabase
-import com.aap.worldflags.room.table.QuestionRow
-import com.aap.worldflags.room.table.ScoreTableRow
 import com.aap.worldflags.data.Answer
 import com.aap.worldflags.data.AnswerRecord
 import com.aap.worldflags.data.CountryFlagDataWithWeight
@@ -17,6 +13,10 @@ import com.aap.worldflags.data.CurrentGameScore
 import com.aap.worldflags.data.FlagData
 import com.aap.worldflags.data.Game
 import com.aap.worldflags.data.QuestionOptions
+import com.aap.worldflags.data.SingleGameSummarizedData
+import com.aap.worldflags.room.GameDatabase
+import com.aap.worldflags.room.table.QuestionRow
+import com.aap.worldflags.room.table.ScoreTableRow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.lastOrNull
@@ -34,7 +34,7 @@ interface QuestionPicker {
     fun pick(): FlagData
 }
 
-
+private const val WINNING_THRESHOLD = 0.75f
 class GamePlayRepositoryImpl @Inject constructor(
     private val gameDatabase: GameDatabase,
     private val gameCreationRepository: GameDataCreationRepository,
@@ -70,16 +70,31 @@ class GamePlayRepositoryImpl @Inject constructor(
 
     override fun getScoreSummary(): SingleGameSummarizedData {
         val correct = answerRecords.filter { it.isCorrect }.size
-        return SingleGameSummarizedData(answerRecords.size, correct, answerRecords.size - correct, System.currentTimeMillis())
+        val wrong = answerRecords.size - correct
+        return SingleGameSummarizedData(
+            totalQuestions = answerRecords.size,
+            correct = correct,
+            wrong = wrong,
+            winner = isWinner(correct, wrong),
+            time = System.currentTimeMillis(), )
     }
 
     override fun getPastScores(): Flow<List<SingleGameSummarizedData>> {
         return gameDatabase.pastScoresDao().getScoreList().map {
             it.map { row ->
-                SingleGameSummarizedData(row.total, row.correct, row.wrong, row.playTime)
+                with(row) {
+                    SingleGameSummarizedData(
+                        totalQuestions = total,
+                        correct = correct,
+                        wrong = wrong,
+                        winner = isWinner(correct, wrong),
+                        time = playTime
+                    )
+                }
             }
         }
     }
+
 
     private suspend fun getCurrentGameCounter(): Int {
         val v = dataStore.data.lastOrNull()
@@ -87,7 +102,7 @@ class GamePlayRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markGameComplete() {
-        //insertGameInPastGamesDbTable()
+        insertGameInPastGamesDbTable()
         recordLastNQuestionWithAnswersInDb()
     }
 
@@ -95,10 +110,13 @@ class GamePlayRepositoryImpl @Inject constructor(
         return gameDatabase.pastQuestionsDao().getQuestionRows()
     }
 
+    override fun isWinner(correct: Int, wrong: Int): Boolean {
+        return correct.toFloat() / (correct + wrong) > WINNING_THRESHOLD
+    }
+
     // Remember which questions were asked. Then clean up so that only the last recent 10 questions are kept
     // Record the ones which the user got wrong. No need to add correct ones.
     private suspend fun recordLastNQuestionWithAnswersInDb() {
-        val counter = getCurrentGameCounter()
         val timeStamp = System.currentTimeMillis()
         val pastQuestionsDao = gameDatabase.pastQuestionsDao()
         answerRecords.forEach { answerRecord ->
@@ -124,9 +142,18 @@ class GamePlayRepositoryImpl @Inject constructor(
 
     private suspend fun insertGameInPastGamesDbTable() {
         val summary = getScoreSummary()
-        val scoreTableRow =
-            ScoreTableRow(0, summary.totalQuestions, summary.correct, summary.wrong, System.currentTimeMillis())
-        gameDatabase.pastScoresDao().insertGameScore(scoreTableRow)
+        with(summary) {
+            val scoreTableRow =
+                ScoreTableRow(
+                    0,
+                    totalQuestions,
+                    correct,
+                    wrong,
+                    isWinner(correct, wrong).toInt(),
+                    System . currentTimeMillis ()
+                )
+            gameDatabase.pastScoresDao().insertGameScore(scoreTableRow)
+        }
 
     }
 
@@ -135,8 +162,8 @@ class GamePlayRepositoryImpl @Inject constructor(
         val isCorrect = isAnswerCorrect(game, questionIndex, answerIndex)
         val score = game.currentGameScore.copy(
             answered = game.currentGameScore.answered + 1,
-            correct = game.currentGameScore.correct + if (isCorrect) 1 else 0,
-            wrong = game.currentGameScore.wrong + if (isCorrect) 0 else 1,
+            correct = game.currentGameScore.correct + isCorrect.toInt(),
+            wrong = game.currentGameScore.wrong + (!isCorrect).toInt(),
         )
         recordAnswer(game.questions[questionIndex], answerIndex)
         return game.copy(currentGameScore = score)

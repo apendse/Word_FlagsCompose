@@ -12,6 +12,9 @@ interface PastScoreDao {
     @Query("SELECT * FROM $SCORE_TABLE")
     fun getScoreList(): Flow<List<ScoreTableRow>>
 
+    @Query("SELECT * FROM $SCORE_TABLE WHERE isWinner = 1")
+    fun getWinnerStreak(): Flow<List<ScoreTableRow>>
+
     @Insert
     suspend fun insertGameScore(scoreTableRow: ScoreTableRow)
 

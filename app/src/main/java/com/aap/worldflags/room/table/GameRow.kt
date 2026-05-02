@@ -14,4 +14,5 @@ data class GameRow(
     @ColumnInfo(name = "answer1") val correct: Int,
     @ColumnInfo(name = "answer2") val wrong: Int,
     @ColumnInfo(name = "date_played") val date: String,
+    @ColumnInfo(name = "game_won") val hasWon: Int,
 )

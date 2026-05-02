@@ -9,19 +9,26 @@ import kotlinx.coroutines.flow.Flow
 class PastGameRepositoryImpl(private val pastScoreDao: PastScoreDao): PastGameRepository  {
 
     override suspend fun insertScoreRow(singleGameSummarizedData: SingleGameSummarizedData) {
-        Log.d("YYYY", "PastGameRepositoryImpl: insertScoreRow ${singleGameSummarizedData.totalQuestions}");
-        val scoreTableRow = ScoreTableRow(
-            id = 0,
-            total = singleGameSummarizedData.totalQuestions,
-            correct = singleGameSummarizedData.correct,
-            wrong = singleGameSummarizedData.wrong,
-            playTime = singleGameSummarizedData.time
-        )
-        pastScoreDao.insertGameScore(scoreTableRow)
+        Log.d("YYYY", "PastGameRepositoryImpl: insertScoreRow ${singleGameSummarizedData.totalQuestions}")
+        with(singleGameSummarizedData) {
+            val scoreTableRow = ScoreTableRow(
+                id = 0,
+                total = totalQuestions,
+                correct = correct,
+                wrong = wrong,
+                isWinner = winner.toInt(),
+                playTime = singleGameSummarizedData.time
+            )
+            pastScoreDao.insertGameScore(scoreTableRow)
+        }
     }
 
     override fun getPastScoreList(): Flow<List<ScoreTableRow>> {
         return pastScoreDao.getScoreList()
+    }
+
+    override fun getPastWinningStreaks(): Flow<List<ScoreTableRow>> {
+        return pastScoreDao.getWinnerStreak()
     }
 
 }

@@ -15,7 +15,7 @@ import javax.inject.Inject
 class PastScoresViewModel @Inject constructor(pastGameRepository: PastGameRepository): ViewModel() {
     val scoreUiState: StateFlow<List<SingleGameSummarizedData>> = pastGameRepository.getPastScoreList().map {
         it.map {
-            SingleGameSummarizedData(it.total, it.correct, it.wrong, it.playTime)
+            SingleGameSummarizedData(it.total, it.correct, it.wrong, it.isWinner == 1, it.playTime)
         }
     }.stateIn(
         scope = viewModelScope, started =  SharingStarted.Lazily, initialValue = emptyList())

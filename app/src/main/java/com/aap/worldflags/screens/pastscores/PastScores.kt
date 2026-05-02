@@ -110,11 +110,13 @@ private fun PreviewPastRow() {
         totalQuestions = 20,
         correct = 19,
         wrong = 1,
+        true,
         time = System.currentTimeMillis() - 48.hours.inWholeMilliseconds),
         SingleGameSummarizedData(
             totalQuestions = 20,
             correct = 15,
             wrong = 5,
+            true,
             time = System.currentTimeMillis() - 3.hours.inWholeMilliseconds)
 
     )
@@ -181,7 +183,7 @@ fun PreviewRow() {
                 .background(MaterialTheme.colorScheme.background)
         ) {
             val s = SimpleDateFormat("yy/MM/dd h:mm", Locale.getDefault())
-            val item = SingleGameSummarizedData(30, 16, 15, System.currentTimeMillis())
+            val item = SingleGameSummarizedData(30, 16, 15, true, System.currentTimeMillis())
             RenderRow(0, item)
             RenderRow(1, item)
         }

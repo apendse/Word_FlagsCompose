@@ -14,5 +14,6 @@ data class ScoreTableRow(
     @ColumnInfo(name = "total_questions") val total: Int,
     @ColumnInfo(name = "correct") val correct: Int,
     @ColumnInfo(name = "wrong") val wrong: Int,
+    @ColumnInfo(name = "isWinner") val isWinner: Int,
     @ColumnInfo(name = "date_played") val playTime: Long,
 )

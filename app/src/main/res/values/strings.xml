@@ -22,11 +22,14 @@
     <string name="detailed_score_title">Detailed score</string>
     <string name="past_scores">Your past scores</string>
     <string name="empty_past_scores">No past scores to show. Play a few games first.</string>
+    <string name="empty_winning_streaks">No winning streaks so far!</string>
     <string name="back">Back</string>
     <string name="total">Total</string>
     <string name="correct">Correct</string>
     <string name="wrong">Wrong</string>
     <string name="date">Time</string>
     <string name="your_score">Your score</string>
+    <string name="winning_streaks">Winning Streaks</string>
+    <string name="winning_streak_template">correct: %1$d wrong: %2$d time: %3$s</string>
 
 </resources>

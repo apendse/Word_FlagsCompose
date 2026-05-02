@@ -9,6 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.aap.worldflags.R
+import com.aap.worldflags.data.MediaData
 import com.aap.worldflags.repo.GameDataCreationRepository
 import com.aap.worldflags.repo.GameDataCreationRepositoryImpl
 import com.aap.worldflags.repo.GamePlayRepository
@@ -16,7 +17,6 @@ import com.aap.worldflags.repo.GamePlayRepositoryImpl
 import com.aap.worldflags.repo.PastGameRepository
 import com.aap.worldflags.repo.PastGameRepositoryImpl
 import com.aap.worldflags.room.GameDatabase
-import com.aap.worldflags.data.MediaData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,7 +48,6 @@ class AppModule {
             android.util.Log.d("YYYY", "SQL Query: $sqlQuery SQL Args: $bindArgs")
 
         }
-
     }
 
     @Singleton
@@ -77,7 +76,7 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideGameCreationRepository(@ApplicationContext appContext: Context, gameDatabase: GameDatabase): GameDataCreationRepository {
+    fun provideGameCreationRepository(@ApplicationContext appContext: Context): GameDataCreationRepository {
         return GameDataCreationRepositoryImpl(appContext)
     }
 

@@ -2,13 +2,13 @@ package com.aap.worldflags.screens.game
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aap.worldflags.repo.GamePlayRepository
-import com.aap.worldflags.repo.PastGameRepository
 import com.aap.worldflags.data.CurrentGameScore
 import com.aap.worldflags.data.CurrentQuestionScore
 import com.aap.worldflags.data.Game
 import com.aap.worldflags.data.MediaData
 import com.aap.worldflags.data.SingleGameSummarizedData
+import com.aap.worldflags.repo.GamePlayRepository
+import com.aap.worldflags.repo.PastGameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val DEFAULT_NUM_QUESTIONS = 2
-private const val DELAY_AFTER_ANSWER_TO_NEXT_PAGE = 1L
+private const val NUMBER_OF_QUESTIONS_PER_GAME = 3
+private const val DELAY_AFTER_ANSWER_TO_NEXT_PAGE = 150L
 
 @HiltViewModel
 class PlayGameViewModel @Inject constructor(
@@ -33,39 +33,41 @@ class PlayGameViewModel @Inject constructor(
     private val _scoreUiState = MutableStateFlow(CurrentQuestionScore(false, "", true))
     val scoreUiState: StateFlow<CurrentQuestionScore> = _scoreUiState.asStateFlow()
 
-    fun startANewGame(numQuestions: Int = DEFAULT_NUM_QUESTIONS) {
+    fun startANewGame(numQuestions: Int = NUMBER_OF_QUESTIONS_PER_GAME) {
         viewModelScope.launch(Dispatchers.Default) {
             val game = createAGame(numQuestions)
             _uiState.value = GameUiState.GameUiStateWithData(game)
         }
     }
 
-    fun Game.isPossibleToMoveToNext() = currentQuestion < (DEFAULT_NUM_QUESTIONS - 1)
+    fun Game.isPossibleToMoveToNext() = currentQuestion < (NUMBER_OF_QUESTIONS_PER_GAME - 1)
 
-    private fun moveToNextQuestionIfNotComplete() {
-        viewModelScope.launch {
-            delay(DELAY_AFTER_ANSWER_TO_NEXT_PAGE)
-            val stateValue = _uiState.value
-            if (stateValue is GameUiState.GameUiStateWithData) {
+    private suspend fun moveToNextQuestionIfNotComplete() {
+        val stateValue = _uiState.value
+        if (stateValue is GameUiState.GameUiStateWithData) {
+            val game = stateValue.game
+            if (game.isPossibleToMoveToNext()) {
+                val gameWithQuestionAdvancedByOne =
+                    game.copy(currentQuestion = game.currentQuestion + 1)
+                _uiState.value = GameUiState.GameUiStateWithData(gameWithQuestionAdvancedByOne)
+            } else {
+                _uiState.value = GameUiState.GameComplete
 
-                val game = stateValue.game
-                if (game.isPossibleToMoveToNext()) {
-                    val gameWithQuestionAdvancedByOne =
-                        game.copy(currentQuestion = game.currentQuestion + 1)
-                    _uiState.value = GameUiState.GameUiStateWithData(gameWithQuestionAdvancedByOne)
-                } else {
-                    _uiState.value = GameUiState.GameComplete
-
-                    pastGameRepository.insertScoreRow(
+                pastGameRepository.insertScoreRow(
+                    with(game) {
                         SingleGameSummarizedData(
-                            totalQuestions = game.questions.size,
-                            correct = game.currentGameScore.correct,
-                            wrong = game.currentGameScore.wrong,
+                            totalQuestions = questions.size,
+                            correct = currentGameScore.correct,
+                            wrong = currentGameScore.wrong,
+                            gamePlayRepository.isWinner(
+                                correct = currentGameScore.correct,
+                                wrong = currentGameScore.wrong
+                            ),
                             time = System.currentTimeMillis()
                         )
-                    )
-                    gamePlayRepository.markGameComplete()
-                }
+                    }
+                )
+                gamePlayRepository.markGameComplete()
             }
         }
     }
@@ -78,49 +80,55 @@ class PlayGameViewModel @Inject constructor(
         gamePlayRepository.createANewGame(numberOfQuestions)
 
     fun playSoundOnly(answerIndex: Int) {
-        val currentGame = (_uiState.value as GameUiState.GameUiStateWithData).game
-        val currentQuestionIndex = currentGame.currentQuestion
-        val isAnswerCorrect =
-            gamePlayRepository.isAnswerCorrect(currentGame, currentQuestionIndex, answerIndex)
-        playSound(isAnswerCorrect)
+        val currentState = _uiState.value
+        if (currentState is GameUiState.GameUiStateWithData) {
+            val currentGame = currentState.game
+            val isAnswerCorrect = gamePlayRepository.isAnswerCorrect(currentGame, currentGame.currentQuestion, answerIndex)
+            playSound(isAnswerCorrect)
+        }
     }
 
     fun onAnswerClickCompleted(answerIndex: Int) {
-        val currentGame = (_uiState.value as GameUiState.GameUiStateWithData).game
-        val currentQuestionIndex = currentGame.currentQuestion
-        val questionsWithCurrentUpdated = currentGame.questions.toMutableList()
-        val answersWithSelectionUpdated = questionsWithCurrentUpdated[currentQuestionIndex].answers.toMutableList()
-        answersWithSelectionUpdated.forEachIndexed { i, answer ->
-            if (i == answerIndex) {
-                answersWithSelectionUpdated[i] = answersWithSelectionUpdated[i].copy(isSelected = true)
-            } else {
-                answersWithSelectionUpdated[i] = answersWithSelectionUpdated[i].copy(isSelected = false)
+        val currentState = _uiState.value
+        if (currentState is GameUiState.GameUiStateWithData) {
+            val currentGame = currentState.game
+            val currentQuestionIndex = currentGame.currentQuestion
+
+            if (currentGame.currentGameScore.answered > currentQuestionIndex) {
+                return
             }
+
+            // 1. Update selection locally
+            val questionsWithCurrentUpdated = currentGame.questions.toMutableList()
+            val answersWithSelectionUpdated = questionsWithCurrentUpdated[currentQuestionIndex].answers.toMutableList()
+            answersWithSelectionUpdated.forEachIndexed { i, _ ->
+                answersWithSelectionUpdated[i] = answersWithSelectionUpdated[i].copy(isSelected = (i == answerIndex))
+            }
+            questionsWithCurrentUpdated[currentQuestionIndex] =
+                questionsWithCurrentUpdated[currentQuestionIndex].copy(answers = answersWithSelectionUpdated)
+
+            val gameWithSelection = currentGame.copy(questions = questionsWithCurrentUpdated)
+
+            // 2. Process logic and advance
+            moveToNextQuestionWithDelay(answerIndex, gameWithSelection)
         }
-        questionsWithCurrentUpdated[currentQuestionIndex] =
-            questionsWithCurrentUpdated[currentQuestionIndex].copy(answers = answersWithSelectionUpdated)
-        val intermediateGameState =
-            GameUiState.GameUiStateWithData(currentGame.copy(questions = questionsWithCurrentUpdated))
-        moveToNextQuestionWithDelay(answerIndex, intermediateGameState)
     }
 
-    private fun moveToNextQuestionWithDelay(answerIndex: Int, gameState: GameUiState.GameUiStateWithData) {
-        updateScore(answerIndex, gameState)
+    private fun moveToNextQuestionWithDelay(answerIndex: Int, gameWithSelection: Game) {
         viewModelScope.launch {
+            // Update score and selection state immediately
+            updateScore(answerIndex, gameWithSelection)
+            
+            // Short delay so user can see their selection/score before sliding
             delay(DELAY_AFTER_ANSWER_TO_NEXT_PAGE)
+            
             moveToNextQuestionIfNotComplete()
         }
-
     }
 
-    private fun updateScore(answerIndex: Int, gameStateWithData: GameUiState.GameUiStateWithData) {
-
-        val gameState = gameStateWithData.game
-        val questionIndex = gameState.currentQuestion
-
-        val updatedGame = gamePlayRepository.processAnswer(gameState, questionIndex, answerIndex)
-        val isAnswerCorrect =
-            gamePlayRepository.isAnswerCorrect(gameState, questionIndex, answerIndex)
+    private fun updateScore(answerIndex: Int, gameState: Game) {
+        val updatedGame = gamePlayRepository.processAnswer(gameState, gameState.currentQuestion, answerIndex)
+        val isAnswerCorrect = gamePlayRepository.isAnswerCorrect(gameState, gameState.currentQuestion, answerIndex)
         val newTitle = getNewTitle(updatedGame.currentGameScore)
 
         _scoreUiState.value = CurrentQuestionScore(isAnswerCorrect, newTitle, false)
@@ -128,21 +136,8 @@ class PlayGameViewModel @Inject constructor(
     }
 
     private fun playSound(correct: Boolean, onComplete : (() -> Unit)? = null) {
-        val mediaPlayer = if (correct) {
-            mediaData.correct
-        } else {
-            mediaData.wrong
-        }
-        mediaPlayer.setOnCompletionListener { _ ->
-            onComplete?.invoke()
-        }
+        val mediaPlayer = if (correct) mediaData.correct else mediaData.wrong
+        mediaPlayer.setOnCompletionListener { _ -> onComplete?.invoke() }
         mediaPlayer.start()
-    }
-
-    fun markGameComplete() {
-        viewModelScope.launch(Dispatchers.IO) {
-            gamePlayRepository.markGameComplete()
-            gamePlayRepository.markGameComplete()
-        }
     }
 }

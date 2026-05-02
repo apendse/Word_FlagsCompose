@@ -2,7 +2,6 @@ package com.aap.worldflags.screens.score
 
 import android.content.Context
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -87,7 +86,6 @@ fun CompactScore(
                 .fillMaxWidth()
 
         ) {
-            val leftPadding = Modifier.padding(start = 0.dp)
             //Spacer(modifier = Modifier.weight(0.5f))
             val scoreStringMap = getScoreStrings(
                 LocalContext.current,
@@ -372,7 +370,7 @@ private fun getScoreStrings(
 @Composable
 private fun CardPreview() {
     WorldFlagsTheme {
-        CompactScore({}, {}, {}, SingleGameSummarizedData(20, 15, 5, 0L))
+        CompactScore({}, {}, {}, SingleGameSummarizedData(20, 15, 5, true,0L))
     }
 }
 
@@ -382,7 +380,7 @@ private fun CardPreview() {
 @Composable
 private fun CardPreviewLandscape() {
     WorldFlagsTheme {
-        CompactScore({}, {}, {}, SingleGameSummarizedData(20, 15, 5, 0L))
+        CompactScore({}, {}, {}, SingleGameSummarizedData(20, 15, 5, true, 0L))
     }
 }
 

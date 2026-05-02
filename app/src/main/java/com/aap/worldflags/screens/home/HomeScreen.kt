@@ -35,47 +35,69 @@ import kotlin.random.Random
 fun HomeScreen(
     onStartNewGame: () -> Unit,
     onShowPastScore: () -> Unit,
+    onShowWinningStreaks: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    HomeScreen(viewModel, onStartNewGame, onShowPastScore)
-}
-
-@Composable
-private fun HomeScreen(viewModel: HomeViewModel, onStartNewGame: () -> Unit, onShowPastScore: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         BackgroundFlagGrid(viewModel, Modifier.fillMaxSize())
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            RenderButtons(onStartNewGame =
-
-                            onStartNewGame,
-
-                onShowPastScore = onShowPastScore)
+            RenderButtons(
+                onStartNewGame =
+                    onStartNewGame,
+                onShowPastScore = onShowPastScore,
+                onShowWinningStreaks = onShowWinningStreaks,
+            )
         }
     }
 }
 
 @Composable
-fun RenderButtons( onStartNewGame: () -> Unit, onShowPastScore: () -> Unit) {
+fun RenderButtons(
+    onStartNewGame: () -> Unit,
+    onShowPastScore: () -> Unit,
+    onShowWinningStreaks: () -> Unit
+) {
     val fontSize = 24.sp
     ElevatedButton(onClick = onStartNewGame) {
-        Text(text = stringResource(id = R.string.start_new_game_home), fontSize = fontSize, fontWeight = FontWeight.Bold)
+        Text(
+            text = stringResource(id = R.string.start_new_game_home),
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
+        )
     }
     Spacer(Modifier.height(16.dp))
     ElevatedButton(onClick = onShowPastScore) {
-        Text(text = stringResource(id = R.string.past_scores_home), fontSize = fontSize, fontWeight = FontWeight.Bold)
+        Text(
+            text = stringResource(id = R.string.past_scores_home),
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
+    Spacer(Modifier.height(16.dp))
+    ElevatedButton(onClick = onShowWinningStreaks) {
+        Text(
+            text = stringResource(id = R.string.winning_streaks),
+            fontSize = fontSize,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
+
 @Composable
 fun RenderFlag(drawable: Int) {
     Spacer(Modifier.width(8.dp))
     Image(
         modifier = Modifier.fillMaxSize(),
         alpha = 0.3f,
-        painter = painterResource(id = drawable), contentDescription = "")
+        painter = painterResource(id = drawable), contentDescription = ""
+    )
     Spacer(Modifier.width(8.dp))
 }
 
@@ -85,6 +107,7 @@ suspend fun scrollHorizontalList(lazyListState: LazyListState) {
         lazyListState.animateScrollToItem(lazyListState.firstVisibleItemIndex + step)
     }
 }
+
 @Composable
 fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
     // Show six rows of random flags. Each of these lists will scroll randomly.
@@ -112,13 +135,15 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
 
     //var offset = 0
     val listSize = list.value.size
-    Column(Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly) {
+    Column(
+        Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
         LazyRow(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
             state = listState1,
         ) {
             items(HORIZONTAL_ROW_COUNT) {
@@ -130,7 +155,7 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
                 .fillMaxWidth()
                 .height(48.dp),
             state = listState2,
-            ) {
+        ) {
             items(HORIZONTAL_ROW_COUNT) {
                 RenderFlag(list.value[(startOffsets.value[1] + it) % listSize])
             }
@@ -141,7 +166,7 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
                 .fillMaxWidth()
                 .height(48.dp),
             state = listState3,
-             ) {
+        ) {
             items(HORIZONTAL_ROW_COUNT) {
                 RenderFlag(list.value[(startOffsets.value[2] + it) % listSize])
             }
@@ -152,7 +177,7 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
                 .fillMaxWidth()
                 .height(48.dp),
             state = listState4,
-             ) {
+        ) {
             items(HORIZONTAL_ROW_COUNT) {
                 RenderFlag(list.value[(startOffsets.value[3] + it) % listSize])
             }
@@ -163,7 +188,7 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
                 .fillMaxWidth()
                 .height(48.dp),
             state = listState5,
-             ) {
+        ) {
             items(HORIZONTAL_ROW_COUNT) {
                 RenderFlag(list.value[(startOffsets.value[4] + it) % listSize])
             }
@@ -188,10 +213,12 @@ fun BackgroundFlagGrid(viewModel: HomeViewModel, modifier: Modifier) {
 @Composable
 fun PreviewHome() {
     WorldFlagsTheme {
-        Column(Modifier.fillMaxSize(),
+        Column(
+            Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            RenderButtons({}, {})
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            RenderButtons({}, {}, {})
         }
     }
 

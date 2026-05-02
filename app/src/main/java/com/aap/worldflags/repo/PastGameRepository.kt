@@ -11,4 +11,5 @@ import kotlinx.coroutines.flow.Flow
 interface PastGameRepository {
     suspend fun insertScoreRow(singleGameSummarizedData: SingleGameSummarizedData)
     fun getPastScoreList(): Flow<List<ScoreTableRow>>
+    fun getPastWinningStreaks(): Flow<List<ScoreTableRow>>
 }
