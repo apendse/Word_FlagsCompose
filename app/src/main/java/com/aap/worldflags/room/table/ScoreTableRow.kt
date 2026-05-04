@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 /**
  * Past score records
  */
-const val SCORE_TABLE = "score_table"
-@Entity(tableName = SCORE_TABLE)
+const val PAST_SCORE_TABLE = "score_table"
+@Entity(tableName = PAST_SCORE_TABLE)
 data class ScoreTableRow(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "total_questions") val total: Int,

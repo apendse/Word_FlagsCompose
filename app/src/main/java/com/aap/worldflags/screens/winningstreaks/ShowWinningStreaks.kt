@@ -37,15 +37,21 @@ fun ShowWinningStreaks(
     onTitleChange: (String, Boolean) -> Unit,
     viewModel: ShowWinningStreaksViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.flowOfStreaks.collectAsState()
     onTitleChange(stringResource(id = R.string.detailed_score_title), true)
+
     when(uiState) {
         is WinningStreakUiState.NoWinningStreak -> {
             EmptyWinningStreakMessage(modifier)
         }
         is WinningStreakUiState.WinningStreak -> {
-            ShowWinningStreaksAsList(modifier = modifier, rows = (uiState as WinningStreakUiState.WinningStreak).list,
+            val winningStreak =  uiState as WinningStreakUiState.WinningStreak
+            if (winningStreak.list.isEmpty()) {
+                EmptyWinningStreakMessage(modifier)
+            } else {
+                ShowWinningStreaksAsList(modifier = modifier, rowOfRows = winningStreak.list,
                 onBack = onBack, onStartNewGame = onStartNewGame)
+            }
         }
         else -> {
             // NOOP
@@ -67,21 +73,42 @@ private fun EmptyWinningStreakMessage(modifier: Modifier) {
 @Composable
 fun ShowWinningStreaksAsList(
     modifier: Modifier = Modifier,
-    rows: List<ScoreTableRow>,
+    rowOfRows: List<List<ScoreTableRow>>,
     onBack: () -> Unit,
     onStartNewGame: () -> Unit,
 ) {
 
-    Column(modifier = modifier.padding(16.dp).fillMaxSize()) {
+    Column(modifier = modifier
+        .padding(16.dp)
+        .fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(rows) { row ->
-                RenderRow(Modifier.fillMaxWidth(), row)
+            rowOfRows.forEach { list ->
+                item() {
+                    RenderHeader(Modifier.fillMaxWidth(), list.size)
+                }
+                items(list) { row ->
+                    RenderRow(Modifier.fillMaxWidth(), row)
+                }
             }
         }
 
     }
 }
 
+@Composable
+fun RenderHeader(modifier: Modifier = Modifier, count: Int) {
+    ListItem(
+        headlineContent = {
+            Text(
+            text = stringResource(R.string.winning_streak_header, count),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF2E2E2E)
+            )
+
+        }
+    )
+}
 @Composable
 fun RenderRow(modifier: Modifier = Modifier, row: ScoreTableRow) {
     ElevatedCard(
@@ -108,7 +135,7 @@ fun RenderRow(modifier: Modifier = Modifier, row: ScoreTableRow) {
             trailingContent = {
                 Text(
                     text = getDateString(row.playTime),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
@@ -126,4 +153,6 @@ private fun getDateString(time: Long): String {
 
     return SimpleDateFormat(format, Locale.getDefault()).format(Date(time))
 }
+
+
 

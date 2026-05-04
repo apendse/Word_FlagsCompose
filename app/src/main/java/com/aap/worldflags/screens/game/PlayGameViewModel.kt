@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val NUMBER_OF_QUESTIONS_PER_GAME = 3
+private const val NUMBER_OF_QUESTIONS_PER_GAME = 10
 private const val DELAY_AFTER_ANSWER_TO_NEXT_PAGE = 150L
 
 @HiltViewModel

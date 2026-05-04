@@ -212,9 +212,27 @@ private fun ListPreview() {
     WorldFlagsTheme {
         ShowDetailedScore(
             listOf(
-                AnswerRecord(R.drawable.be, "Something", "Something",  R.drawable.`in`),
-                AnswerRecord(R.drawable.de, "Something", "Something2",  null),
-                AnswerRecord(R.drawable.us, "Something", "Something1", null),
+                AnswerRecord(
+                    flagDrawable = R.drawable.be,
+                    questionCountryCode = "Something",
+                    correctAnswer = "Something",
+                    yourAnswer = "Something",
+                    yourAnswerDrawable = R.drawable.`in`
+                ),
+                AnswerRecord(
+                    flagDrawable = R.drawable.de,
+                    questionCountryCode = "Something",
+                    correctAnswer = "Something2",
+                    yourAnswer = "Something2",
+                    yourAnswerDrawable = null
+                ),
+                AnswerRecord(
+                    flagDrawable = R.drawable.us,
+                    questionCountryCode = "Something",
+                    correctAnswer = "Something1",
+                    yourAnswer = "Something1",
+                    yourAnswerDrawable = null
+                ),
             ), {}, {})
     }
 }
@@ -229,7 +247,13 @@ private fun CardPreview() {
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            RenderRow(0, AnswerRecord(R.drawable.ad, "Very looong answer", "Very long long answer", R.drawable.es), false)
+            RenderRow(0, AnswerRecord(
+                flagDrawable = R.drawable.ad,
+                questionCountryCode = "us",
+                correctAnswer = "Very looong answer",
+                yourAnswer = "Very long long answer",
+                yourAnswerDrawable = R.drawable.es
+            ), false)
         }
     }
 }

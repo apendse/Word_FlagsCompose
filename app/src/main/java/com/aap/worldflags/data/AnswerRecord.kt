@@ -5,6 +5,6 @@ package com.aap.worldflags.data
  * Whether the answer was correct and what was the correct answer.
  * Used for showing the detailed score for a game after it's complete.
  */
-data class AnswerRecord(val flagDrawable: Int, val correctAnswer: String, val yourAnswer: String, val yourAnswerDrawable: Int?) {
+data class AnswerRecord(val flagDrawable: Int, val questionCountryCode: String, val correctAnswer: String, val yourAnswer: String, val yourAnswerDrawable: Int?) {
     val isCorrect = (correctAnswer == yourAnswer)
 }

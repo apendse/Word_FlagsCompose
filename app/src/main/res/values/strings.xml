@@ -31,5 +31,6 @@
     <string name="your_score">Your score</string>
     <string name="winning_streaks">Winning Streaks</string>
     <string name="winning_streak_template">correct: %1$d wrong: %2$d time: %3$s</string>
+    <string name="winning_streak_header">Winning streak of %1$d games!</string>
 
 </resources>

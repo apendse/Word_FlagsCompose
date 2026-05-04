@@ -31,4 +31,7 @@ class PastGameRepositoryImpl(private val pastScoreDao: PastScoreDao): PastGameRe
         return pastScoreDao.getWinnerStreak()
     }
 
+    override suspend fun clearTable() {
+        pastScoreDao.clear()
+    }
 }

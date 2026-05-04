@@ -123,7 +123,7 @@ class GamePlayRepositoryImpl @Inject constructor(
             pastQuestionsDao.insertOrUpdateQuestionRow(
                 QuestionRow(
                     0,
-                    "",
+                    answerRecord.questionCountryCode,
                     answerRecord.correctAnswer,
                     timeStamp.toInt(),
                     answerRecord.isCorrect)
@@ -173,6 +173,7 @@ class GamePlayRepositoryImpl @Inject constructor(
         val isCorrect = questionOptions.answers[answerIndex].isCorrect
         val answerRecord = AnswerRecord(
             questionOptions.flagImage,
+            questionOptions.questionCountryCode,
             questionOptions.answers.first { it.isCorrect }.countryName,
             questionOptions.answers[answerIndex].countryName,
             if (isCorrect) { null } else { questionOptions.answers[answerIndex].answerDrawable },
@@ -234,7 +235,11 @@ class GamePlayRepositoryImpl @Inject constructor(
             }
             answers.addAll(wrongAnswers)
             answers.shuffle()
-            questions.add(QuestionOptions(questionFlagData.flagDrawable, answers))
+            questions.add(QuestionOptions(
+                flagImage = questionFlagData.flagDrawable,
+                questionCountryCode = questionFlagData.countryCode,
+                answers = answers
+            ))
         }
         val str = listOfQuestionData.map { it.countryName }.joinToString(",")
         Log.d("YYYY", "game created $str");
@@ -304,7 +309,11 @@ class GamePlayRepositoryImpl @Inject constructor(
                 val wrongAnswers = getFillerAnswers(questionFlagData).map { Answer(it.countryName, it.flagDrawable, false) }
                 answers.addAll(wrongAnswers)
                 answers.shuffle()
-                questions.add(QuestionOptions(questionFlagData.flagDrawable, answers))
+                questions.add(QuestionOptions(
+                    flagImage = questionFlagData.flagDrawable,
+                    questionCountryCode = questionFlagData.countryCode,
+                    answers = answers
+                ))
             }
         }
         return Game(questions, CurrentGameScore(0, questions.size, 0, 0), currentQuestion = 0)

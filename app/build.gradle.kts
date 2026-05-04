@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.google.gson)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.i18n)
     ksp(libs.hilt.android.compiler)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)

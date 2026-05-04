@@ -8,7 +8,7 @@ import com.aap.worldflags.room.table.ScoreTableRow
 
 
 @Database(
-    version = 4,
+    version = 5,
     entities = [GameRow::class, ScoreTableRow::class, QuestionRow::class],
     )
 abstract class GameDatabase: RoomDatabase() {

@@ -12,4 +12,5 @@ interface PastGameRepository {
     suspend fun insertScoreRow(singleGameSummarizedData: SingleGameSummarizedData)
     fun getPastScoreList(): Flow<List<ScoreTableRow>>
     fun getPastWinningStreaks(): Flow<List<ScoreTableRow>>
+    suspend fun clearTable()
 }
